@@ -1,0 +1,75 @@
+name: Build FCS APKs
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build-rider:
+    name: Build Rider APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build Rider debug APK
+        working-directory: FCS-Rider
+        run: |
+          curl -sL https://services.gradle.org/distributions/gradle-8.2-bin.zip -o /tmp/gradle.zip
+          sudo unzip -q /tmp/gradle.zip -d /opt
+          /opt/gradle-8.2/bin/gradle assembleDebug --no-daemon
+
+      - name: Rename Rider APK
+        run: |
+          mkdir -p dist
+          APK=$(find FCS-Rider -name "app-debug.apk" -path "*/outputs/*" | head -1)
+          cp "$APK" dist/fcs-rider.apk
+
+      - name: Upload Rider APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: fcs-rider-apk
+          path: dist/fcs-rider.apk
+
+  build-staff:
+    name: Build Staff APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build Staff debug APK
+        working-directory: FCS-Staff
+        run: |
+          curl -sL https://services.gradle.org/distributions/gradle-8.2-bin.zip -o /tmp/gradle.zip
+          sudo unzip -q /tmp/gradle.zip -d /opt
+          /opt/gradle-8.2/bin/gradle assembleDebug --no-daemon
+
+      - name: Rename Staff APK
+        run: |
+          mkdir -p dist
+          APK=$(find FCS-Staff -name "app-debug.apk" -path "*/outputs/*" | head -1)
+          cp "$APK" dist/fcs-staff.apk
+
+      - name: Upload Staff APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: fcs-staff-apk
+          path: dist/fcs-staff.apk
