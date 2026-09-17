@@ -18,27 +18,29 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.2.1"
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools platforms;android-34 build-tools;34.0.0
 
-      - name: Build Rider debug APK
+      - name: Accept licenses
+        run: yes | sdkmanager --licenses || true
+
+      - name: Build Rider APK
         working-directory: FCS-Rider
-        run: |
-          curl -sL https://services.gradle.org/distributions/gradle-8.2-bin.zip -o /tmp/gradle.zip
-          sudo unzip -q /tmp/gradle.zip -d /opt
-          /opt/gradle-8.2/bin/gradle assembleDebug --no-daemon
-
-      - name: Rename Rider APK
-        run: |
-          mkdir -p dist
-          APK=$(find FCS-Rider -name "app-debug.apk" -path "*/outputs/*" | head -1)
-          cp "$APK" dist/fcs-rider.apk
+        run: gradle assembleDebug --no-daemon --stacktrace
 
       - name: Upload Rider APK
         uses: actions/upload-artifact@v4
         with:
           name: fcs-rider-apk
-          path: dist/fcs-rider.apk
+          path: FCS-Rider/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
 
   build-staff:
     name: Build Staff APK
@@ -52,24 +54,26 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.2.1"
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools platforms;android-34 build-tools;34.0.0
 
-      - name: Build Staff debug APK
+      - name: Accept licenses
+        run: yes | sdkmanager --licenses || true
+
+      - name: Build Staff APK
         working-directory: FCS-Staff
-        run: |
-          curl -sL https://services.gradle.org/distributions/gradle-8.2-bin.zip -o /tmp/gradle.zip
-          sudo unzip -q /tmp/gradle.zip -d /opt
-          /opt/gradle-8.2/bin/gradle assembleDebug --no-daemon
-
-      - name: Rename Staff APK
-        run: |
-          mkdir -p dist
-          APK=$(find FCS-Staff -name "app-debug.apk" -path "*/outputs/*" | head -1)
-          cp "$APK" dist/fcs-staff.apk
+        run: gradle assembleDebug --no-daemon --stacktrace
 
       - name: Upload Staff APK
         uses: actions/upload-artifact@v4
         with:
           name: fcs-staff-apk
-          path: dist/fcs-staff.apk
+          path: FCS-Staff/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
