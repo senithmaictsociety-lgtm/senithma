@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FCS Staff</string>
+    <string name="server_base">https://polarr.tech/FCS/fcs-tracking/public</string>
+    <string name="start_path">staff-login.html</string>
+</resources>
